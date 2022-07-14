@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import model.exceptions.DomainException;
+
 public class Reservation {
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -15,10 +17,13 @@ public class Reservation {
 	public Reservation() {
 	}
 
-	public Reservation(Integer roomNunber, Date checkin, Date checkout) {
+	public Reservation(Integer roomNunber, Date checkIn, Date checkOut) {
+		if (checkIn.after(checkOut)) {
+			throw new DomainException("Erro na reserva: o check-out deve ser uma data fututra ao check-in.");
+		}
 		this.roomNunber = roomNunber;
-		this.checkIn = checkin;
-		this.checkOut = checkout;
+		this.checkIn = checkIn;
+		this.checkOut = checkOut;
 	}
 
 	public long duration() {
@@ -26,17 +31,17 @@ public class Reservation {
 		return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 	}
 
-	public String updateDates(Date checkIn, Date CheckOut) {
+	public void updateDates(Date checkIn, Date checkOut) {
 		Date now = new Date();
 		if (checkIn.before(now) || checkOut.before(now)) {
-			return "Erro em atualizar reserva: as datas de atulização precisam ser datas futuras.";
+			throw new DomainException("Erro em atualizar reserva: as datas de atulização precisam ser datas futuras.");
 		}
-		if (!checkOut.after(checkIn)) {
-			return "Erro na reserva: o check-out deve ser uma data fututra ao check-in.";
+		if (checkIn.after(checkOut)) {
+			throw new DomainException("Erro na reserva: o check-out deve ser uma data fututra ao check-in.");
 		}
 		this.checkIn = checkIn;
-		this.checkOut = CheckOut;
-		return null;
+		this.checkOut = checkOut;
+
 	}
 
 	public Integer getRoomNunber() {

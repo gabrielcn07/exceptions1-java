@@ -3,27 +3,28 @@ package application;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import model.entitites.Reservation;
+import model.exceptions.DomainException;
 
 public class Program {
 
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) {
 
 		Scanner scan = new Scanner(System.in);
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-		System.out.print("Numero do quarto: ");
-		int roomNumber = scan.nextInt();
-		System.out.print("Data de check-in (DD/MM/AAAA): ");
-		Date checkIn = sdf.parse(scan.next());
-		System.out.print("Data de check-out (DD/MM/AAAA): ");
-		Date checkOut = sdf.parse(scan.next());
+		try {
 
-		if (!checkOut.after(checkIn)) {
-			System.out.println("Erro na reserva: o check-out deve ser uma data fututra ao check-in.");
-		} else {
+			System.out.print("Numero do quarto: ");
+			int roomNumber = scan.nextInt();
+			System.out.print("Data de check-in (DD/MM/AAAA): ");
+			Date checkIn = sdf.parse(scan.next());
+			System.out.print("Data de check-out (DD/MM/AAAA): ");
+			Date checkOut = sdf.parse(scan.next());
+
 			Reservation reservation = new Reservation(roomNumber, checkIn, checkOut);
 			System.out.println(reservation);
 
@@ -34,13 +35,15 @@ public class Program {
 			System.out.print("Data de check-out (DD/MM/AAAA): ");
 			checkOut = sdf.parse(scan.next());
 
-			String error = reservation.updateDates(checkIn, checkOut);
-			if (error != null) {
-				System.out.println(error);
-			} else {
-				System.out.println(reservation);
-			}
+			reservation.updateDates(checkIn, checkOut);
+			System.out.println(reservation);
 
+		} catch (ParseException e) {
+			System.out.println("Formato de data invalida!");
+		} catch (DomainException e) {
+			System.out.println(e.getMessage());
+		} catch(InputMismatchException e) {
+			System.out.println("Numero do quarto invalido!");
 		}
 
 		scan.close();
